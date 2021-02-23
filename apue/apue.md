@@ -2,6 +2,7 @@
 ## 前言
 本文档是笔者阅读apue（Advanced Programming in the UNIX Environment second edition）时候的笔记，如有不正确的地方欢迎指正
 
+---
 
 ## 第一章 UNIX 基础知识
 
@@ -48,6 +49,7 @@
     * sbrk(2) 和 malloc 的区别
     * 系统调用返回国际标准时间1970年1月1日0点以来锁经过的秒数
 
+---
 
 ## 第二章 UNIX标准化及实现
 
@@ -93,6 +95,8 @@
 ### 基本系统数据类型
 * 与系统实现有关的数据类型，\<sys/types.h>，通常以 _t 结尾
 * 使用这种方式定义的数据类型，不需要考虑因系统而已的程序实现细节。
+
+---
 
 ## 第三章 文件 I/O
 
@@ -287,6 +291,7 @@ int ioctl(int filedes, int request, ...);
 * /dev/stdin、/dev/stdout、/dev/stderr 等效于 /dev/fd/0、/dev/fd/1、、/dev/fd/2
 * shell 中使用/dev/fd作为调用参数，能用处理其他路径名的相同方式处理标准输入输出
 
+---
 
 ## 第四章 文件和目录
 
@@ -476,9 +481,11 @@ int chdir(const char *pathname);
 int fchdir(int filedes);
 char *getcwd(char *buf, size_t size);
 ```
+---
 
 ## 第五章 标准I/O库
 
+---
 
 ## 第六章 系统数据文件和信息
 * 口令文件
@@ -489,6 +496,7 @@ char *getcwd(char *buf, size_t size);
 * 系统标识：uname gethostname
 * 时间和日期例程： time gettimeofday gmtime localtime mktime asctime ctime strftime
 
+---
 
 ## 第七章 进程环境
 ### main 函数
@@ -593,6 +601,7 @@ struct rlimit {
 ```
 * 每个进程有一组资源限制，可用这两函数查询和修改
 
+---
 
 ## 第八章 进程控制
 
@@ -775,6 +784,8 @@ clock_t times(struct tms *buf);
 // 若成功返回流逝的墙上时钟时间（单位：时钟滴答数），若出错返回-1
 ```
 
+---
+
 ## 第九章 进程关系
 
 ### 终端登录
@@ -833,6 +844,8 @@ pid_t getsid(pid_t pid);
 * 内核必须提供对某些作业控制信号的支持
 
 ### 孤儿进程组
+
+---
 
 ## 第十章 信号
 
