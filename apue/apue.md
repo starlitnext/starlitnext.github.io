@@ -836,5 +836,105 @@ pid_t getsid(pid_t pid);
 
 ## 第十章 信号
 
+### 信号概念
+* 信号都被定义为正整数
+* 不存在编号为0的信号，kill函数对信号编号为0有特殊的应用
+* 信号处理的三种动作：
+    * 忽略此信号：SIGKILL和SIGSTOP不能被忽略，因为它们向超级用户提供了使进程终止或停止的可靠方法
+    * 捕捉信号，要通知内核在某种信号发生时调用一个用户函数，SIGKILL和SIGSTOP信号不能捕捉
+    * 执行系统默认动作，针对大多数信号的系统默认动作是终止进程，有些会生成core文件
+
+### signal 函数
+``` c++
+#include <signal.h>
+void (*signal(int signo, void (*func)(int)))(int);
+// 若成功，返回信号以前的处理配置，若出错则返回SIG_ERR
+
+// signal.h中的声明
+#define SIG_ERR     (void (*)())-1
+#define SIG_DFL     (void (*)())0
+#define SIG_IGN     (void (*)())1
+```
+* func的值是常量SIG_IGN、常量SIG_DFL 或当接到此信号后要调用的函数的地址
+* 当执行一个程序时，所有信号的状态都是系统默认或忽略
+* exec函数将原先设置为要捕捉的信号都改为它们的默认动作，其它信号的状态则不变
+* 当一个进程调用fork时，其子进程继承父进程的信号处理方式，因为子进程在开始时复制了父进程的存储映像，所以信号捕捉函数的地址在子进程中是有意义的
+
+### 中断的系统调用
+
+### 可重入函数
+* 进程捕捉到新号并对其进行处理时，进程正在执行的指令就被信号处理程序临时终端，首先执行该信号处理程序中的指令，返回后继续执行在捕捉到信号时进程正在执行的正常指令序列
+* 如果进程正在执行malloc，在其堆中分配另外的存储空间，此时信号处理程序又调用malloc，可能会对进程造成破坏
+
+### kill 和 raise 函数
+``` c++
+#include <signal.h>
+int kill(pid_t pid, int signo);
+int raise(int signo);
+```
+* kill 函数将信号发送给进程或进程组，raise函数向进程自身发送信号
+* raise(signo) 等价于 kill(getpid(), signo)
+* kill 的pid参数：
+    * pid > 0 将该信号发送给进程ID为pid的进程
+    * pid == 0 将该信号发送给与发送进程属于同一进程组的所哟进程，而且发送进程具有向这些进程发送信号的权限
+    * pid < 0 将信号发送给进程组ID等于pid的绝对值，切发送信号具有向其发送信号的权限
+    * pid == -1 将该信号发送给发送进程有权限向它们发送信号的系统上的所有进程，不包括有些系统进程
+
+### alarm 和 pause 函数
+``` c
+#include <unistd.h>
+unsigned int alarm(unsigned int secondss); // 返回0或以前设置的闹钟时间的余留秒数
+int pause(void); // 返回-1，并将errno设置为EINTR
+```
+* 每个进程只能有一个闹钟时钟
+* SIGALRM的默认动作是终止进程
+* pause函数使调用进程挂起直至捕捉到一个信号
+
+### 信号集
+* 一个能表示多个信号的数据类型：sigset_t
+``` c
+#include <signal.h>
+int sigemptyset(sigset_t *set);
+int sigfillset(sigset_t *set);
+int sigaddset(sigset_t *set, int signo);
+int sigdelset(sigset_t *set, int signo);
+int sigismember(const sigset_t *set, int signo);
+```
+
+### sigprocmask 函数
+* 进程的信号屏蔽字规定了当前阻塞而不能递送给该进程的信号集
+* 在调用sigprocmask后如果有任何未决的、不再阻塞的信号，则再sigprocmask返回前，至少会将其中一个信号递送给该进程
+
+### sigpending 函数
+* 返回信号集，其中的各个信号对于调用进程是阻塞的而不能递送，因而也一定是当前未决的
+
+### sigaction 函数
+``` c
+#include <signal.h>
+int sigaction(int signo, const struct sigaction *restrict act, 
+    struct sigaction *restrict oact);
+```
+* 检查或修改与指定信号相关联的处理动作（或同时执行这两种操作）
+* signo 是要检测或修改其具体动作的信号编号，若act指针为非空，则要修改其动作，如果oact指针为非空，则系统经由oact指针返回该信号的上一个动作
+
+### sigsetjmp 和 siglongjmp 函数
+
+### sigsuspend 函数
+
+### abort 函数
+* 使异常程序终止
+* 此函数将SIGABRT信号发送给调用进程
+
+### system 函数
+
+### sleep 函数
+
+### 作业控制信号
+* SIGCHILD
+* SIGCONT
+* SIGSTOP
+* SIGTSTP
+* SIGTTIN
+* SIGTTOU
 
 
