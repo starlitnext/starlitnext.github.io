@@ -1,6 +1,19 @@
+<!-- TOC -->
+
+- [学习笔记](#学习笔记)
+    - [服务端](#服务端)
+- [书籍](#书籍)
+    - [redis](#redis)
+    - [c++](#c)
+- [分享链接](#分享链接)
+
+<!-- /TOC -->
+
 ## 学习笔记
 ### 服务端
 * [apue](https://github.com/starlitnext/starlitnext.github.io/blob/main/apue/apue.md)
+
+---
 
 ## 书籍
 ### redis
@@ -11,3 +24,9 @@
 
 ### c++
 * [C++ Concurrency In Action second edition](https://www.bookstack.cn/read/CPP-Concurrency-In-Action-2ed-2019/README.md)
+
+
+---
+
+## 分享链接
+* [C++构建系统的选择](https://www.jianshu.com/p/31bf731fec22)
