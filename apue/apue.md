@@ -106,6 +106,10 @@
     - [线程创建](#线程创建)
     - [线程终止](#线程终止)
     - [线程同步](#线程同步)
+        - [互斥量](#互斥量)
+        - [避免死锁](#避免死锁)
+        - [读写锁](#读写锁)
+        - [条件变量](#条件变量)
 
 <!-- /TOC -->
 ## 前言
@@ -1145,5 +1149,72 @@ int pthread_detach(pthread_t tid);
 * 通过对传给pthread_create函数的线程属性进行修改，可以创建一个已处于分离状态的线程
 
 ### 线程同步
-
+#### 互斥量
+* 可以通过pthread的互斥接口保护数据，确保同一时间只有一个线程访问数据
+* 互斥量本质上是一把锁，在访问共享资源前对互斥量进行加锁，在访问完成后释放互斥量上的锁
+* 对互斥量进行加锁以后，任何其他试图再次对互斥量加锁的线程将会被阻塞直到当前线程释放该互斥锁
+* 如果释放互斥锁时有多个线程阻塞，所有在改互斥锁上的阻塞线程都变成可运行状态，第一个变为运行状态的线程可以对互斥量加锁，其他线程将会看到互斥锁依然被锁住，只能回去再次等待它重新变为可用。每次只有一个线程可以向前执行。
+* 互斥量用 *pthread_mutex_t* 数据类型来表示，可以设置为常量 *PTHREAD_MUTEX_INITIALIZER*（只对静态分配的互斥量），也可以通过 *pthread_mutex_init* 函数进行初始化
+* 如果动态的分配互斥量（如使用malloc函数），那么释放内存前需要调用 *pthread_mutex_destroy*
+``` c
+#include <pthread.h>
+int pthread_mutex_init(pthread_mutex_t *restrict mutex, 
+    const pthread_mutexattr_t *restrict attr);
+int pthread_mutex_destroy(pthread_mutex_t *mutex);
+```
+* 要用默认的属性初始化互斥量，只需要把attr设置为NULL
+* 对互斥量进行加锁，需要调用 *pthread_mutex_lock*,如果互斥量已经上锁，调用线程将阻塞直到互斥量被解锁
+``` c
+#include <pthread.h>
+int pthread_mutex_lock(pthread_mutex_t *mutex);
+int pthread_mutex_trylock(pthread_mutex_t *mutex);
+int pthread_mutex_unlock(pthread_mutex_t *mutex);
+```
+* pthread_mutex_trylock: 尝试对互斥量进行加锁
+    * 如果互斥量处于未锁状态，那么将锁住互斥量，不会阻塞并返回0
+    * 如果互斥量已锁住，则不能锁住互斥量，返回EBUSY
+#### 避免死锁
+* 如果线程试图对同一个互斥量加锁两次，那么它自身就会陷入死锁状态
+* 如果程序中使用多个互斥量，而且不同的线程按照不同的顺序对互斥量进行加锁，可能出现死锁
+* 通过小心的控制互斥量加锁的顺序来避免死锁
+* 可以先释放占用的锁，过一段时间再试，通过pthread_mutex_trylock尝试加锁
+#### 读写锁
+* 读写锁可以有三种状态：读模式下加锁状态、写模式下加锁状态、不加锁状态
+* 一次只有一个线程可以占有写模式的读写锁，但是多个线程可以同时占有读模式的读写锁
+* 当读写锁是写加锁状态时，在解锁之前，所有试图对这个锁加锁的线程都会被阻塞
+* 当读写锁在读加锁状态时，所有试图以读模式对它进行加锁的线程都可以得到访问权，但是如果线程希望以写模式加锁，它必须阻塞直到所有的线程释放读写锁
+* 当读写锁处于读模式锁住状态时，如果有另外的线程试图以写模式加锁，读写锁通常会阻塞随后的读模式请求，避免读模式锁长期占用，而等待的写模式锁请求一直得不到满足
+``` c
+#include <pthread.h>
+int ptrehad_rwlock_init(pthread_rwlock_t *restrict rwlock,
+    const pthread_rwlockattr_t *restrict attr);
+int ptrhead_rwlock_destroy(pthread_rwlock_t *rwlock);
+int ptrhead_rwlock_rdlock(pthread_rwlock_t *rwlock);
+int ptrhead_rwlock_wrlock(pthread_rwlock_t *rwlock);
+int ptrhead_rwlock_unlock(pthread_rwlock_t *rwlock);
+```
+* 实现读写锁的时候，可能会对共享模式下可获取的锁的数量进行限制，所以需要检查 *ptrhead_rwlock_rdlock* 的返回值
+#### 条件变量
+* 条件变量给多个线程提供了一个会和的场所。条件变量与互斥量一起使用时，允许线程以无竞争的方式等待特定的条件发生
+* pthread_cond_t 数据类型可以用 *PTHREAD_COND_INITIALIZER* 初始化静态分配的条件变量，也可以用 pthread_cond_init 动态初始化
+``` c
+#include <pthread.h>
+int pthread_cond_init(pthread_cond_t *restrict cond,
+    pthread_condattr_t *restrict attr);
+int pthread_cond_destroy(pthread_cond_t *cond);
+```
+* pthread_cond_wait 等待条件变为真，函数把调用线程放到等待条件的线程列表上，然后对互斥量解锁，这两个操作是原子操作。返回时，互斥量再次被锁住。
+``` c
+#include <pthread.h>
+int pthread_cond_wait(pthread_cond_t *restrict cond, pthread_mutex_t *restrict mutes);
+int pthread_cond_timedwait(pthread_cond_t *restrict cond, pthread_mutex_t *restrict mutex, const struct timespec *restrict timeout);
+```
+* 如果时间到了条件还没出现，则pthread_cond_timedwait 将重新获取互斥量，然后返回ETIMEDOUT
+* pthread_cond_wait 返回时，线程需要重新计算条件，因为其它线程可能已经在运行并改变了条件
+* pthread_cond_signal 函数将唤醒等待该条件的某个线程，pthread_cond_broadcast 将唤醒等待该条件的所有线程
+``` c
+#include <pthread.h>
+int pthread_cond_signal(pthread_cond_t *cond);
+int pthread_cond_broadcast(pthread_cond_t *cond);
+```
 
