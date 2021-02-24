@@ -8,3 +8,6 @@
 * [redis设计与实现(第二版)](https://github.com/starlitnext/ebooks/blob/main/redis/redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0(%E7%AC%AC%E4%BA%8C%E7%89%88).pdf)
 * [Redis实战](https://github.com/starlitnext/ebooks/blob/main/redis/Redis%E5%AE%9E%E6%88%98.pdf)
 * [Redis开发与运维](https://github.com/starlitnext/ebooks/blob/main/redis/Redis%E5%BC%80%E5%8F%91%E4%B8%8E%E8%BF%90%E7%BB%B4.pdf)
+
+### c++
+* [C++ Concurrency In Action second edition](https://www.bookstack.cn/read/CPP-Concurrency-In-Action-2ed-2019/README.md)
