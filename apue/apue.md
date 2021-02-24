@@ -1135,7 +1135,7 @@ void pthread_cleanup_pop(int execute);
 | fork         | pthread_create         | 创建新的控制流               |
 | exit         | pthread_exit           | 从现有的控制流中退出          |
 | waitpid      | pthread_join           | 从控制流中得到退出状态        |
-| atexit       | pthread_cancel_push    | 注册在退出控制流时调用的函数   |
+| atexit       | pthread_cleanup_push   | 注册在退出控制流时调用的函数   |
 | getpid       | pthread_self           | 获取控制流的ID               |
 | abort        | pthread_cancel         | 请求控制流的非正常退出        |
 
