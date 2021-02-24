@@ -105,6 +105,7 @@
     - [线程标识](#线程标识)
     - [线程创建](#线程创建)
     - [线程终止](#线程终止)
+    - [线程同步](#线程同步)
 
 <!-- /TOC -->
 ## 前言
@@ -1095,5 +1096,54 @@ int pthread_create( pthred_t *restrict tidp,
     * 线程只是从启动例程中返回，返回值是线程的退出码
     * 线程可以被同一进程中的其它线程取消
     * 线程调用 *pthread_exit*
+* pthread_exit
+``` c
+#include <pthread.h>
+void pthread_exit(void *rval_ptr);
+```
+* pthread_join：调用线程将一直阻塞，直到指定的线程调用pthread_exit、从启动例程中返回或者被取消
+``` c
+#include <pthread.h>
+int pthread_join(pthread_t thread, void **rval_ptr);
+```
+* pthread_create 和 pthread_exit 函数的无类型指针参数能传递的数值可以不止一个，该指针可以传递包含更复杂信息的结构的地址，但是注意这个结构所使用的内存在调用者完成调用以后必须任然有效
+* 线程可以通过调用*pthread_cancel*函数来取消同一进程中的其它线程
+``` c
+#include <pthread.h>
+int pthread_cancel(pthread_t tid);
+```
+* pthread_cancel 如同调用了参数为PTHREAD_CANCELED的pthread_exit函数，但是线程可以选择忽略取消方式或是控制取消方式。pthread_cancel并不等待线程终止，它仅仅是提出请求
+* 线程清理处理程序：
+``` c
+#include <pthread.h>
+void pthread_cleanup_push(void (*rtn)(void *), void *arg);
+void pthread_cleanup_pop(int execute);
+```
+* 当线程执行以下动作时调用清理函数
+    * 调用pthread_exit时
+    * 响应取消请求时
+    * 用非零execute参数调用pthread_cleanup_pop时
+* 如果线程是从它的启动例程中返回而终止的话，那么它的清理处理程序**不会**被调用
+* 进程原语和线程原语的比较
+
+|   进程原语    | 线程原语               | 描述                         |
+| ---------    | --------------         | ----------------            |
+| fork         | pthread_create         | 创建新的控制流               |
+| exit         | pthread_exit           | 从现有的控制流中退出          |
+| waitpid      | pthread_join           | 从控制流中得到退出状态        |
+| atexit       | pthread_cancel_push    | 注册在退出控制流时调用的函数   |
+| getpid       | pthread_self           | 获取控制流的ID               |
+| abort        | pthread_cancel         | 请求控制流的非正常退出        |
+
+* 分离状态：在默认情况下，线程的终止状态会爆粗到对该线程调用pthred_join，如果线程已经处于分离状态，线程的低层存储可以在线程终止时立即被回收。
+* 对分离状态的线程进行pthread_join调用会产生失败，返回EINVAL
+* pthread_detach可以使线程进入分离状态
+``` c
+#include <pthread.h>
+int pthread_detach(pthread_t tid);
+```
+* 通过对传给pthread_create函数的线程属性进行修改，可以创建一个已处于分离状态的线程
+
+### 线程同步
 
 
