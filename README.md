@@ -3,6 +3,7 @@
 
 - [学习笔记](#学习笔记)
     - [服务端](#服务端)
+    - [工具](#工具)
 - [书籍](#书籍)
     - [redis](#redis)
     - [c++](#c)
@@ -15,6 +16,9 @@
 ## 学习笔记
 ### 服务端
 * [apue](https://github.com/starlitnext/starlitnext.github.io/blob/main/apue/apue.md)
+
+### 工具
+* [markdown mermaid](https://github.com/starlitnext/starlitnext.github.io/blob/main/markdown%E7%94%BB%E5%9B%BE.md)
 
 ---
 
