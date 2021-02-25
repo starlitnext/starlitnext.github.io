@@ -16,6 +16,7 @@
 
 ## 学习笔记
 ### python
+[Python C API](https://github.com/starlitnext/starlitnext.github.io/blob/main/python/python%20C%20API.md)
 
 ### 服务端
 * [apue](https://github.com/starlitnext/starlitnext.github.io/blob/main/apue/apue.md)
