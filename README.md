@@ -2,6 +2,7 @@
 <!-- TOC -->
 
 - [学习笔记](#学习笔记)
+    - [python](#python)
     - [服务端](#服务端)
     - [工具](#工具)
 - [书籍](#书籍)
@@ -14,6 +15,8 @@
 ---
 
 ## 学习笔记
+### python
+
 ### 服务端
 * [apue](https://github.com/starlitnext/starlitnext.github.io/blob/main/apue/apue.md)
 
