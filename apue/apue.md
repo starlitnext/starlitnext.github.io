@@ -113,13 +113,13 @@
 - [第十二章 线程控制](#第十二章-线程控制)
 - [第十三章 守护进程](#第十三章-守护进程)
 - [第十四章 高级I/O](#第十四章-高级io)
-        - [非阻塞IO](#非阻塞io)
-        - [记录锁](#记录锁)
-        - [STREAMS](#streams)
-        - [IO多路转接](#io多路转接)
-            - [select](#select)
-            - [pselect](#pselect)
-            - [poll](#poll)
+    - [非阻塞IO](#非阻塞io)
+    - [记录锁](#记录锁)
+    - [STREAMS](#streams)
+    - [IO多路转接](#io多路转接)
+        - [select](#select)
+        - [pselect](#pselect)
+        - [poll](#poll)
     - [readv 和 writev 函数](#readv-和-writev-函数)
     - [readn 和 writen 函数](#readn-和-writen-函数)
     - [存储映射IO](#存储映射io)
@@ -1247,11 +1247,11 @@ int pthread_cond_broadcast(pthread_cond_t *cond);
 
 ## 第十四章 高级I/O
 
-#### 非阻塞IO
+### 非阻塞IO
 * 如果调用open获得描述符，指定 *O_NONBLOCK* 标志
 * 对于已经打开的一个描述符，可调用 *fcntl*，由该函数打开 *O_NONBLOCK* 文件状态标志
 
-#### 记录锁
+### 记录锁
 * 当一个进程正在读或修改文件的某个部分时，他可以阻止其它进程修改同一文件区
 * 准确来说：字节范围锁（byte-range locking）
 * fcntl 记录锁
@@ -1274,12 +1274,12 @@ struct fclock{
 * 在执行exec后，新程序可以继承原执行程序的锁。
 
 
-#### STREAMS
+### STREAMS
 * 构造内核设备驱动程序和网络协议包的一种通用方法
 
-#### IO多路转接
+### IO多路转接
 
-##### select
+#### select
 ``` c
 #include <sys/select.h>
 int select(int maxfdp1, fd_set *readfds,
@@ -1308,10 +1308,10 @@ void FD_ZERO(fd_set *fdset);
     * 正返回值：已经准备好的描述符数，如果同一描述符已准备好读和写，则记为2
 * select返回以后，没有准备好的描述符位在描述符集中被清除
 
-##### pselect
+#### pselect
 * 可使用一可选择的信号屏蔽字，已原子操作的方式安装该新号屏蔽字，在返回时恢复以前的信号屏蔽字
 
-##### poll
+#### poll
 ``` c
 #include <poll.h>
 int poll(struct pollfd fdarray[], nfds_t nfds, int timeout);
