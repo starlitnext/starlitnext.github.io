@@ -113,6 +113,16 @@
 - [第十二章 线程控制](#第十二章-线程控制)
 - [第十三章 守护进程](#第十三章-守护进程)
 - [第十四章 高级I/O](#第十四章-高级io)
+        - [非阻塞IO](#非阻塞io)
+        - [记录锁](#记录锁)
+        - [STREAMS](#streams)
+        - [IO多路转接](#io多路转接)
+            - [select](#select)
+            - [pselect](#pselect)
+            - [poll](#poll)
+    - [readv 和 writev 函数](#readv-和-writev-函数)
+    - [readn 和 writen 函数](#readn-和-writen-函数)
+    - [存储映射IO](#存储映射io)
 
 <!-- /TOC -->
 ## 前言
@@ -1236,3 +1246,176 @@ int pthread_cond_broadcast(pthread_cond_t *cond);
 ---
 
 ## 第十四章 高级I/O
+
+#### 非阻塞IO
+* 如果调用open获得描述符，指定 *O_NONBLOCK* 标志
+* 对于已经打开的一个描述符，可调用 *fcntl*，由该函数打开 *O_NONBLOCK* 文件状态标志
+
+#### 记录锁
+* 当一个进程正在读或修改文件的某个部分时，他可以阻止其它进程修改同一文件区
+* 准确来说：字节范围锁（byte-range locking）
+* fcntl 记录锁
+``` c
+#include <fcntl.h>
+int fcntl(int filedes, int cmd, ... /* struct flock *flockptr */);
+// cmd: F_GETLK, F_SETLK, F_SETSLKW
+struct fclock{
+    short   ltype;      // F_RDLCK, F_WRLCK, F_UNLCK
+    off_t   l_start;    // offset in bytes, relative to l_whence
+    short   l_whence;   // SEEK_SET, SEEK_CUR, SEEK_END
+    off_t   l_len;      // length, in bytes; 0 means lock to EOF
+    pid_t   l_pid;      // returned with F_GETLK
+};
+```
+* 不同进程提出的锁请求可能被拒绝，如果同一个进程对一个文件区域多次加锁，那么新锁会替换老锁
+* 当一个进程终止时，它所建立的锁全部释放
+* 任何时候关闭一个描述符，则该进程通过一个描述符可以引用的文件上的任何一把锁都被释放
+* 由fork产生的子进程不继承父进程锁设置的锁
+* 在执行exec后，新程序可以继承原执行程序的锁。
+
+
+#### STREAMS
+* 构造内核设备驱动程序和网络协议包的一种通用方法
+
+#### IO多路转接
+
+##### select
+``` c
+#include <sys/select.h>
+int select(int maxfdp1, fd_set *readfds,
+        fd_set *writefds, fd_set *exceptfds
+        struct timeval *tvptr);
+struct timeval {
+    long    tv_sec;
+    long    tv_usec;
+};
+int FD_ISSET(int fd, fd_set *fdset);    // 若fd在描述符集中则返回非0，否则返回0
+void FD_CLR(int fd, fd_set *fdset);
+void FD_SET(int fd, fd_set *fdset);
+void FD_ZERO(fd_set *fdset);
+```
+* select 的参数告诉内核：
+    * 我们所关心的描述符
+    * 对于每个描述符我们所关心的状态（读、写、异常）
+    * 愿意等待多长时间（永久，固定量，完全不等待）
+* 从select返回时内核告诉我们：
+    * 已准备好的描述符数量
+    * 对于读、写或异常这三个状态中的每一个，哪些描述符已经准备好
+* maxfdp1: 最大描述符+1
+* 返回值：
+    * -1：出错，锁指定的描述符都没有准备好时捕捉到一个信号
+    * 0：没有描述符准备好，且指定的时间已经超过，此时所有描述符集皆被清0
+    * 正返回值：已经准备好的描述符数，如果同一描述符已准备好读和写，则记为2
+* select返回以后，没有准备好的描述符位在描述符集中被清除
+
+##### pselect
+* 可使用一可选择的信号屏蔽字，已原子操作的方式安装该新号屏蔽字，在返回时恢复以前的信号屏蔽字
+
+##### poll
+``` c
+#include <poll.h>
+int poll(struct pollfd fdarray[], nfds_t nfds, int timeout);
+struct pollfd {
+    int     fd;         // file descriptor
+    short   events;     // events of interest on fd
+    short   revents;    // events that occurred on fd
+};
+```
+* poll不是为每个状态构造一个描述符集，而是构造一个pollfd结构组，每个数组元素指定一个描述符编号以及对其所关心的状态
+* poll的events和revents标志
+    * POLLIN、POLLRDNORM、POLLRDBAND、POLLPRI
+    * POLLOUT、 POLLWRNORM、POLLWRBAND
+    * POLLERR、POLLHUP、POLLNVAL
+
+### readv 和 writev 函数
+* 用于在一次函数调用中读、写多个非连续缓冲区
+
+### readn 和 writen 函数
+* 需要自己实现
+* 读、写指定的N直接数据，并处理返回值小于要求的情况
+* 按需多次调用read和write直至读、写了N字节数据
+``` c
+ssize_t readn(int fd, void *buf, size_t count)
+{
+	size_t nleft = count;
+	ssize_t nread;
+	char *bufp = (char*)buf;
+
+	while (nleft > 0)
+	{
+		if ((nread = read(fd, bufp, nleft)) < 0)
+		{
+			if (errno == EINTR)
+				continue;
+			return -1;
+		}
+		else if (nread == 0)
+			return count - nleft;
+
+		bufp += nread;
+		nleft -= nread;
+	}
+
+	return count;
+}
+
+ssize_t writen(int fd, const void *buf, size_t count)
+{
+	size_t nleft = count;
+	ssize_t nwritten;
+	char *bufp = (char*)buf;
+
+	while (nleft > 0)
+	{
+		if ((nwritten = write(fd, bufp, nleft)) < 0)
+		{
+			if (errno == EINTR)
+				continue;
+			return -1;
+		}
+		else if (nwritten == 0)
+			continue;
+
+		bufp += nwritten;
+		nleft -= nwritten;
+	}
+
+	return count;
+}
+```
+
+
+### 存储映射IO
+``` c
+#include <sys/mman.h>
+void *mmap(void *addr, size_t len, int prot, int flag, int filedes, off_t off);
+// 成功返回映射区的起始地址，出错返回MAP_FAILED
+```
+* 是一个磁盘文件与存储空间中的一个缓冲区相映射
+* 当从缓冲区中取，相当于读文件中的相应字节。将数据存入缓冲区，则相应字节就自动写入文件
+* addr 设置为0，表示由系统选择该映射区的起始地址
+* prot 说明对映射区的保护要求：PROT_READ、PROT_WRITE、PROT_EXEC、PROT_NONE
+* prot不能超过文件open模式访问权限
+* fork：子进程继承存储映射区
+* exec：新程序不继承此存储映射区
+* mprotect 更改一个现存映射存储区的权限
+``` c
+#include <sys/mman.h>
+int mprotect(void *addr, size_t len, int prot);
+```
+* 如果共享存储映射区中的页已被修改，那么我们可以调用msync将该页冲洗到被映射的文件中
+``` c
+#include <sys/mman.h>
+int msync(void *addr, size_t len, int flags);
+// flags 可以未MS_ASYNC 和 MS_SYNC
+```
+* 进程终止或者调用munmap之后，存储映射区被自动解除映射，关闭文件描述符并不会解除映射区
+``` c
+#include <sys/mman.h>
+int munmap(caddr_t addr, size_t len);
+```
+* munmap 不会影响被映射的对象，也就是说，不会使映射区的内容写到磁盘文件上。
+* 可用来实现cp或者进程间提供共享存储区
+
+
+
