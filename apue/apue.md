@@ -1423,5 +1423,69 @@ int munmap(caddr_t addr, size_t len);
 * 管道、FIFO、消息队列、信号量、共享存储器
 
 ### 管道
+``` c
+#include <unistd.h>
+int pipe(int filedes[2]);
+```
+* filedes 返回两个文件描述符： filedes[0]为读打开，filedes[1]为写打开，filedes[1]的输出是filedes[0]的输入
+* 只在具有公共祖先的进程之间使用。通常一个管道由一个进程创建，然后该进程调用fork，此后父子进程之间就可以应用管道
+* 调用pipe后接着调用fork：
+    * 对于父进程到子进程的管道，父进程关闭读端(fd[0])，子进程则关闭写端(fd[1])
+    * 对于子进程到父进程的管道，父进程关闭写端(fd[1]), 子进程关闭读端(fd[0])
+* 当管道的一段被关闭后：
+    * 当读一个写端已被关闭的管道时，所有数据都被读取后，read返回0，表示达到了文件结束处
+    * 如果写一个读端已经关闭的管道时，产生信号SIGPIPE。如果忽略该信号或者捕捉该信号并从处理程序返回，则write返回-1,errno 设置为 EPIPE
+* PIPE_BUF 规定了内核中管道缓冲区的大小
 
+### popen 和 pclose 函数
+``` c
+#include <stdio.h>
+FILE *popen(const char *cmdstring, const char *type);
+int pclose(FILE *fp);
+```
+* 操作：创建一个管道，调用fork产生一个子进程，关闭管道的不使用端，执行一个shell命令，然后等待命令终止
+* type: "r" 或者 "w"
+
+### FIFO
+``` c
+int mkfifo(const char *pathname, mode_t mode);
+```
+* 命名管道
+* 不相关的进程（没有公共祖先）也能交换数据
+* 一旦用mkfifo创建了一个FIFO，就可以用一般的文件IO函数：open、close、read、write、unlink等
+* 用途：
+    * FIFO 由shell命令使用以便将数据从一条管道线传送到另一条，为此无需创建中间临时文件
+    * 用于客户-服务器进程应用程序中，以在客户进程和服务器进程之间传递数据
+
+### XSI IPC
+* 消息队列、信号量、共享存储器
+* 内核中的IPC结构都用一个非负整数的标识符加以引用
+* 标识符是IPC对象的内部名。多个进程能够在同一IPC对象上会合，使用**键（key）**作为该对象的外部名
+* ftok 由一个路径名和项目ID产生一个键
+``` c
+#include <sys/ipc.h>
+key_t ftok(const char *path, int id);
+```
+* 每个XSI IPC结构设置一个ipc_perm结构，规定了权限和所有者
+* 主要问题：
+    * 在系统范围内起作用，没有访问计数：如果进程创建了一个消息队列，在该队列中放入了几则消息，然后终止，该消息队列及其内容并不会被删除
+    * IPC结构在文件系统中没有名字，为了支持他们加了十几条全新的系统调用，不能用ls查看IPC对象等
+    * IPC不使用文件描述符，所以不能对它们使用select或poll的多路转接IO函数
+
+### 消息队列
+* 消息的链接表，存放在内核中并由消息队列标识符标识
+* msgget、msgsnd、msgctl、msgrcv
+
+### 信号量
+* semaphre：一个计数器，用于多进程对共享数据对象的访问
+* 多个进程共享一个资源，可使用信号量或记录锁
+* semget、semctl、semop
+
+### 共享存储
+* 允许两个或多个进程共享一给定的存储区，最快的一种IPC
+* shmget、shmctl、shmat、shmdt
+
+## 第十六章 网络IPC：套接字
+* 不同计算机上运行的进程互相通信的机制
+* 套接字描述符：UNIX系统中用文件描述符实现
 
