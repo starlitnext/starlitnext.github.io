@@ -24,6 +24,8 @@
 
 ### 服务端
 * [apue](https://github.com/starlitnext/starlitnext.github.io/blob/main/apue/apue.md)
+* [socket编程]()
+* [socket编程进阶]()
 
 ### 工具
 * [markdown mermaid](https://github.com/starlitnext/starlitnext.github.io/blob/main/markdown%E7%94%BB%E5%9B%BE.md)
