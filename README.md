@@ -3,6 +3,7 @@
 
 - [学习笔记](#学习笔记)
     - [python](#python)
+    - [C&C++](#cc)
     - [服务端](#服务端)
     - [工具](#工具)
 - [书籍](#书籍)
@@ -17,6 +18,9 @@
 ## 学习笔记
 ### python
 [Python C API](https://github.com/starlitnext/starlitnext.github.io/blob/main/python/python%20C%20API.md)
+
+### C&C++
+[C++基础总结]()
 
 ### 服务端
 * [apue](https://github.com/starlitnext/starlitnext.github.io/blob/main/apue/apue.md)
