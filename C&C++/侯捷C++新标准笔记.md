@@ -1,7 +1,7 @@
-## 视频课程地址
+# 视频课程地址
 * [b站](https://www.bilibili.com/video/BV1Rp4y1n7fb?from=search&seid=13773620021362443107)
 
-## 演进、环境与资源
+# 演进、环境与资源
 * C++标准演进
   - C++98 (1.0)
   - C++03 (TR1, Technical Report 1)
@@ -25,6 +25,8 @@ using namespace std;
 ```
 * TR1 之前`namespace std::tr1`的内容都放到`namespace std`了
 
+# c++2.0 语言部分
+
 ## Variadic Templates
 * 数量不定的模板参数，接收任意个参数，每个参数为任意类型
 ``` c++
@@ -41,7 +43,7 @@ void print(const T& firstArg, const Types&... args)
 print(7.5, "hello", bitset<16>(377), 42);
 ```
 * `sizeof...(args)` 为参数的个数
-* 特例化共存,考虑与上面代码共存时执行哪个？
+* 特例化共存,考虑与上面代码共存时执行哪个？可以共存，会优先调用上面这个，因为`比较特化`，下面这个永远不会被调用
 ``` c++
 template<typename... Types>
 void print(const Types&... args)
@@ -358,3 +360,289 @@ std::set<Person, decltype(cmp)> coll(cmp);
   * 声明return type
   * metaprogramming
   * pass the type of a lambda
+
+## Lambdas
+``` c++
+[...](...)mutable_opt throwSpec_opt -> retType_opt {...}
+```
+* `inline` functionality
+* can be used as a `parameter` or a `local object`
+* 如果没有参数，可以不写 `()`
+* `[]`可以传入外部变量
+  - [=] 按值传递
+  - [&] 按引用传递
+  - [=, &y] y按引用传递，其余按值传递
+  - 没有加特殊符号时，按值传递
+* `mutable` 按值传递时，可以修改这个值，但不影响外部的值
+``` c++
+int id = 0;
+auto f = [id]() mutable {
+  cout << "id: " << id << endl;
+  ++id; // 如果没有mutable：[Error] increment of read-obly variable 'id'
+}; // 可以理解为一个class，里面有一个int id 的成员，这个id由外部传入
+id = 43;
+f();
+f();
+f();
+cout << id << endl;
+// id: 0
+// id: 1
+// id: 2
+// 42
+
+int id = 0;
+auto f = [&id](int param) {
+  cout << "id: " << id << endl;
+  ++id; ++param; // OK
+};
+id = 42;
+f(7);
+f(7);
+f(7);
+cout << id << endl;
+// id: 42
+// id: 43
+// id: 44
+// 45
+```
+* lambda 类型没有默认构造函数和赋值运算符
+``` c++
+auto cmp = [](const Person& p1, const Person& p2) {
+  return p1.lastname() < p2.lastname();
+}
+std::set<Person, decltype(cmp)> coll(cmp);
+
+template<class Key,
+         class Compare = less<Key>
+         class Alloc = alloc>
+class set {
+...
+public:
+  set() : t(Compare()) {} // 如果std::set<Person, decltype(cmp)> coll;调用的话，那么这里需要调用delctype(cmp) 类型的默认构造函数，导致编译报错
+  explicit set(const Compare& comp) : t(comp) {}
+};
+```
+* 和使用仿函数的对比
+``` c++
+vector<int> vi { 5, 28, 50, 83, 70, 590, 245, 59, 24 };
+int x = 30;
+int y = 100;
+vi.erase( remove_if(vi.begin(),
+                    vi.end(),
+                    [x, y](int n) { return x < n && n < y;}
+                    ),
+          vi.end()
+        ); // remove_if 把满足条件的元素移到容器后面，并返回第一个满足条件的位置
+for (auto i : vi)
+  cout << i << " "; // 5, 28, 590, 245, 24
+cout << endl;
+
+class LambdaFunctor {
+public:
+  LambdaFunctor(int a, int b) : m_a(a), m_b(b) { }
+  bool operator()(int n) const { return m_a < n && n < m_b; }
+private:
+  int m_a;
+  int m_b;
+};
+vi.erase( remove_if(v.begin(), v.end(),
+                    LambdaFunctor(x, y)),
+          v.end()
+        );
+```
+
+## Variadic Templates
+* 变化的是template parameters
+  - 参数个数 variable number
+  - 参数类型 different type
+* 递归处理模板参数
+``` c++
+void func() { /*...*/ }
+template<typename T, typename... Types>
+void func(const T& firstArg, const Types&... args)
+{
+  // 处理 first Arg ...
+  func(args...);
+}
+```
+* 重写printf
+``` c++
+void printf(const char* s) {
+  while (*s) {
+    if (*s == '%' && *(++s) != '%')
+      throw std::runtime_error("invalid format string: missing arguments");
+    std::cout << *s++;
+  }
+}
+template<typename T, typename... Args>
+void printf(const char* s, T value, Args... args) {
+  while (*s) {
+    if (*s == '%' && *(++s) != '%') {
+      std::cout << value;
+      printf(++s, args...);
+      return;
+    }
+    std::cout << *s++;
+  }
+  throw std::logic_error("extra arguments provided to printf");
+}
+
+int* pi = new int;
+printf(
+  "%d %s %p %f\n",
+  15,
+  "This is Ace.",
+  pi,
+  3.141592653
+);
+// 15 This is Ace.0x3e4ab8 3.14159
+```
+* 实现max
+``` c++
+// 使用initializer_list
+max({ 56, 48, 60, 100, 20, 18 }); // 需要加上 {}
+
+// 使用 variadic templates
+int maximum(int n)
+{
+  return n;
+}
+template<typename... Arg>
+int maximum(int n, Args... args)
+{
+  return std::max(n, maximum(args...)); // 最后一次调用max(a, b)这样的形式
+}
+maxmimum(56, 48, 60, 100, 20, 18); // 不需要加上 {}
+```
+* 打印 [7.5,hello,0000011111,42]，即头尾的处理方式不同，需要加上[]
+``` c++
+cout << make_tupe(7.5, string("hello"), bitset<16>(377), 42);
+
+template<typename... Args>
+ostream& operator<<(ostream& os, const tuple<Args...>& t) {
+  os << "[";
+  PRINT_TUPLE<0, sizeof...(Args), Args...>::print(os, t);
+  return << "]";
+}
+template<int IDX, int MAX, typename... Args>
+struct PRINT_TUPLE {
+  static void print(ostream& os, const tuple<Args...>& t) {
+    os << get<IDX>(t) << (IDX+1 == MAX ? "" : ","); // 非最后一个元素打印 `,`
+    PRINT_TUPLE<IDX+1, MAX, Args...>::print(os, t); // 最终调用到 PRINT_TUPLE<MAX, MAX, Args...>
+  }
+};
+// partial specialization to end the recursion
+template<int MAX, typename... Args>
+struct PRINT_TUPLE<MAX, MAX, Args...> {
+  static void print(ostream& os, const tuple<Args...>& t) { }
+};
+```
+* 实现递归继承，recursive inheritance，`tuple的实现`
+* 实现复合，recursive compositino
+``` c++
+template<typename... Values> class tup;
+template<> class tup<> { };
+template<typename Head, typename... Tail>
+class tup<Head, Tail...> {
+  typedef tup<Tail...> composited;
+protected:
+  composited m_tail;
+  Head m_head;
+public:
+  tup() { }
+  tup(Head v, Tail... vtail) : m_tail(vtail...), m_head(v) { }
+  Head head() { return m_head; }
+  composited& tail() { return m_tail; }
+}
+```
+
+# 标准库部分
+
+## 右值引用 Rvalue reference
+* Lvalue: 可以出现在 operator= 左侧
+* Rvalue: 只能出现在 operator= 右侧
+* Unperfect Forwarding
+``` c++
+void process(int& i) { cout << "process(int&):" << i << endl; }
+void process(int&& i) { cout << "process(int&&):" <<i << endl; }
+void forward(int&& i) {
+  cout << "forward(int&&):" << i << ",";
+  process(i);
+}
+
+int a = 0;
+process(a);                     // process(int&):0  变量被视为lvalue处理
+process(1);                     // process(int&&):1 temp object 被视为rvalue处理
+process(move(a));               // process(int&&):0 强制将a由lvalue改为rvalue
+forward(2);                     // forward(int&&):2,process(int&):2 rvalue 经由 forward() 传给另一个函数却变成了lvalue
+forward(move(a));               // forward(int&&):0,process(int&):0
+forward(a);                     // [Error] cannot bind 'int' lvalue to 'int&&'
+const int& b = 1;
+process(b);                     // [Error] no matching function for call to 'process(const int&)'
+process(move(b));               // [Error] no matching function for call to 'process(std::remove_reference<const int&>::type)'
+int& x(5);                      // [Error] invalid initialization of non-const reference of type 'int&' from an rvalue of type 'int
+```
+* Perfect forwarding
+``` c++
+template<typename T1, template T2>
+void functionA(T1&& t1, T2&& t2) {
+  functionB(std::forward<T1>(t1),
+            std::forward<T2>(t2));
+}
+```
+* 写一个move aware class
+``` c++
+class MyString {
+public:
+  static size_t DCtor;    // default ctor 调用次数
+  static size_t Ctor;     // ctor 调用次数
+  static size_t CCtor;    // copy ctor 调用次数
+  static size_t CAsgn;    // copy assignment 调用次数
+  static size_t MCtor;    // move ctor 调用次数
+  static size_t MAsgn;    // move assignment 调用次数
+  static size_t Dtor;     // dtor 调用次数
+private:
+  char* _data;
+  size_t _len;
+  void _init_data(const char* s) {
+    _data = new char[_len+1];
+    memcpy(_data, s, _len);
+    _data[len] = '\0';
+  }
+public:
+  MyString() : _data(NULL), _len(0) { ++DCtor; }
+  MyString(const char* p) : _len(strlen(p)) { ++Ctor; _init_data(p); }
+  MyString(const MyString& str) : _len(str.len) { ++CCtor; _init_data(str._data); }
+  MyString(MyString&& str) noexcept 
+    : _data(str._data), _len(str._len) {
+    ++MCtor;
+    str._len = 0;
+    str._data = NULL; // 重要
+  }
+  MyString& operator=(const MyString& str) {
+    ++CAsgn;
+    if (this != &str) {
+      if (_data) delete _data;
+      _len = str._len;
+      _init_data(str._data);
+    } else {
+    }
+    return *this;
+  }
+  MyString& operator=(MyString&& str) noexcept {
+    ++MAsgn;
+    if (this != &str) {
+      if (_data) delete _data;
+      _len = str._len;
+      _data = str._data;
+      str._len = 0;
+      str._data = NULL;
+    }
+    return *this;
+  }
+  virtual ~MyString() {
+    ++Dtor;
+    if (_data) delete _data;
+  }
+};
+```
