@@ -1,4 +1,26 @@
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=3 orderedList=false} -->
 
+<!-- code_chunk_output -->
+
+- [环境安装](#环境安装)
+- [语言结构](#语言结构)
+- [语法基础](#语法基础)
+- [数据类型](#数据类型)
+- [变量](#变量)
+- [常量](#常量)
+- [运算符](#运算符)
+- [条件语句](#条件语句)
+- [循环语句](#循环语句)
+- [函数](#函数)
+- [数组](#数组)
+- [指针](#指针)
+- [结构体](#结构体)
+- [切片](#切片)
+- [Map](#map)
+- [接口（interface）](#接口interface)
+- [并发](#并发)
+
+<!-- /code_chunk_output -->
 ## 环境安装
 * 安装包下载地址 [golang](https://golang.org/dl/)
 
@@ -368,4 +390,25 @@ func main() {
     fmt.Println(i)
   }
 }
+```
+
+@import "echarts.min.js"
+``` javascript {cmd=true element="<div id='showechart' style='width: 500px; height: 300px; margin: 0 auto'></div>" hide}
+var myChart = echarts.init(document.getElementById('showechart'));
+// 指定图表的配置项和数据
+var option = {
+    xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    },
+    yAxis: {
+        type: 'value'
+    },
+    series: [{
+        data: [150, 230, 224, 218, 135, 147, 260],
+        type: 'line'
+    }]
+};
+// 使用刚指定的配置项和数据显示图表。
+myChart.setOption(option);
 ```
