@@ -392,23 +392,4 @@ func main() {
 }
 ```
 
-@import "echarts.min.js"
-``` javascript {cmd=true element="<div id='showechart' style='width: 500px; height: 300px; margin: 0 auto'></div>" hide}
-var myChart = echarts.init(document.getElementById('showechart'));
-// 指定图表的配置项和数据
-var option = {
-    xAxis: {
-        type: 'category',
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    },
-    yAxis: {
-        type: 'value'
-    },
-    series: [{
-        data: [150, 230, 224, 218, 135, 147, 260],
-        type: 'line'
-    }]
-};
-// 使用刚指定的配置项和数据显示图表。
-myChart.setOption(option);
-```
+

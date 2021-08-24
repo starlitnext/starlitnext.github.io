@@ -28,9 +28,6 @@
 * [socket编程](https://github.com/starlitnext/starlitnext.github.io/blob/main/socket/socket%E7%BC%96%E7%A8%8B.md)
 * [socket编程进阶](https://github.com/starlitnext/starlitnext.github.io/blob/main/socket/socket%E7%BC%96%E7%A8%8B%E8%BF%9B%E9%98%B6.md)
 
-### 工具
-* [markdown mermaid](https://github.com/starlitnext/starlitnext.github.io/blob/main/markdown%E7%94%BB%E5%9B%BE.md)
-
 ---
 
 ## 书籍
@@ -49,3 +46,9 @@
 ## 分享链接
 * [C++构建系统的选择](https://www.jianshu.com/p/31bf731fec22)
 * [emake](https://github.com/skywind3000/emake)
+
+---
+## 实用工具
+* [pyecharts 画漂亮的图标](https://pyecharts.org/#/zh-cn/quickstart)
+* [MPE 加强markdown](https://shd101wyy.github.io/markdown-preview-enhanced/#/)
+* [plantuml 画类图流程图等](https://plantuml.com/zh/)
