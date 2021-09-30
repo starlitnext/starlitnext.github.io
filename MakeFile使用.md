@@ -1,4 +1,23 @@
+---
+html:
+    toc:true:
+---
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=3 orderedList=false} -->
 
+<!-- code_chunk_output -->
+
+- [参考文档](#参考文档)
+- [make & makefile](#make-makefile)
+- [makefile基础语法](#makefile基础语法)
+- [Beginner Examples](#beginner-examples)
+- [变量](#变量)
+- [all target](#all-target)
+- [.PHONY](#phony)
+- [Automatic Variables](#automatic-variables)
+- [Wildcard](#wildcard)
+- [生成头文件依赖](#生成头文件依赖)
+
+<!-- /code_chunk_output -->
 ## 参考文档
 * [GNU make](https://www.gnu.org/software/make/manual/html_node/index.html)
 * [makefile tutorial](https://makefiletutorial.com)

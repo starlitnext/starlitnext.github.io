@@ -1,4 +1,3 @@
-
 * [Markdown Preview Enhanced 官方文档](https://shd101wyy.github.io/markdown-preview-enhanced/#/)
 * [在 VSCode 下用 Markdown Preview Enhanced 愉快地写文档](https://zhuanlan.zhihu.com/p/56699805)
 
@@ -6,6 +5,33 @@
 * 添加目录，在文件开始添加下面代码
 ```
 <!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=3 orderedList=false} -->
+```
+* 转化成html以后目录放到侧边栏，需要在文件顶部加上：
+``` 
+---
+html:
+    toc:true
+---
+```
+* vscode 添加代码片段，`ctrl+shift+p` 打开settings.json添加
+```
+"[markdown]":  {
+    "editor.quickSuggestions": true
+  }
+```
+`文件`->`首选项`->`用户片段`打开markdown.json添加
+```
+"Add TOC": {
+		"prefix": "toc",
+		"body": [
+			"---",
+			"html:",
+    		"    toc:true:",
+			"---",
+			"<!-- @import \"[TOC]\" {cmd=\"toc\" depthFrom=2 depthTo=3 orderedList=false} -->"
+		],
+		"description": "add toc"
+	}
 ```
 * `==`来==高亮==
 * Emoji: L^A^T~E~X :smile:
