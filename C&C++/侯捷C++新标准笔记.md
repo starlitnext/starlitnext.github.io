@@ -7,10 +7,10 @@
   - C++03 (TR1, Technical Report 1)
   - C++11 (2.0)
   - C++14 对11进行了一些小修复和改进
-* C++2.0 新特性包括`语音`和`标准库`两个层面，后者以header files形式呈现
-  - C++标准库的header files不带后缀（.h），如 `#include\<vector>`
-  - 新式 C header files 不带.h，如 `#include\<cstdio>`
-  - 旧式 C header files 任可用，如 `#include\<stdio.h>`
+* C++2.0 新特性包括`语言`和`标准库`两个层面，后者以header files形式呈现
+  - C++标准库的header files不带后缀（.h），如 `#include<vector>`
+  - 新式 C header files 不带.h，如 `#include<cstdio>`
+  - 旧式 C header files 任可用，如 `#include<stdio.h>`
 * C++2.0 新增的header files
 ``` c++
 #include <type_traits>
@@ -249,7 +249,7 @@ private:
   int d1, d2;
 };
 ```
-* 什么情况下需要写Bit-Three
+* 什么情况下需要写Big-Three
   - 带有指针类型的成员
 * default 的拷贝，按bit拷贝对象
 * 2.0 Big-Five
@@ -538,7 +538,7 @@ struct PRINT_TUPLE<MAX, MAX, Args...> {
 };
 ```
 * 实现递归继承，recursive inheritance，`tuple的实现`
-* 实现复合，recursive compositino
+* 实现复合，recursive composition
 ``` c++
 template<typename... Values> class tup;
 template<> class tup<> { };
