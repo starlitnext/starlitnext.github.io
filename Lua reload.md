@@ -1,7 +1,7 @@
 ## lua reload 方案
 
 ### 概述
-* 目前市面上用的lua reload方案基本是适用云风提供的那个实现方案，[源码](https://github.com/cloudwu/luareload)，[如何让 lua 做尽量正确的热更新](https://blog.codingnow.com/2016/11/lua_update.html)
+* 目前公司内用的lua reload方案基本是适用云风提供的那个实现方案，[源码](https://github.com/cloudwu/luareload)，[如何让 lua 做尽量正确的热更新](https://blog.codingnow.com/2016/11/lua_update.html)
 * 其基本原理是用一个沙盒把新的模块require进来，然后对面新旧两个模块进行对比，把有修改的内容引用成新的，而在替换函数的实现上，他的方案是把lua的VM整个进行遍历，把引用老函数的地方替换成新的
 * 遍历VM的做法性能很差，在开发期可以使用，但是无法在线上使用，因此需要对替换函数的实现进行优化，比如在python中可以直接替换func_code 来实现，不需要去遍历VM替换函数对象，只是把字节码对象改了就ok了，那么在lua中没有func_code这样的结构提供给脚本，因此需要对lua的函数实现源码进行分析。
 * 因为无法知道两个函数是否不一致，因此遍历VM的时候等于模块的所有函数都要进行替换，这个消耗是巨大的
