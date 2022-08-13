@@ -5,14 +5,20 @@
 ### python
 [Python C API](https://github.com/starlitnext/starlitnext.github.io/blob/main/python/python%20C%20API.md)
 
+### lua
+[Lua C API](https://github.com/starlitnext/starlitnext.github.io/blob/main/lua/Lua%20C%20API.md)
+[Lua reload](https://github.com/starlitnext/starlitnext.github.io/blob/main/lua/Lua%20reload.md)
+
 ### C&C++
 * [C++基础总结](https://github.com/starlitnext/starlitnext.github.io/blob/main/C%26C%2B%2B/C%2B%2B%E5%9F%BA%E7%A1%80%E6%80%BB%E7%BB%93.md)
-* [Makefile使用](https://github.com/starlitnext/starlitnext.github.io/blob/main/MakeFile%E4%BD%BF%E7%94%A8.md)
+* [Makefile使用](https://github.com/starlitnext/starlitnext.github.io/blob/main/build/MakeFile%E4%BD%BF%E7%94%A8.md)
+* [VSCode 中使用CMAKE](https://github.com/starlitnext/starlitnext.github.io/blob/main/build/VSCode%E4%B8%AD%E4%BD%BF%E7%94%A8CMake.md)
 
 ### 服务端
 * [apue](https://github.com/starlitnext/starlitnext.github.io/blob/main/apue/apue.md)
 * [socket编程](https://github.com/starlitnext/starlitnext.github.io/blob/main/socket/socket%E7%BC%96%E7%A8%8B.md)
 * [socket编程进阶](https://github.com/starlitnext/starlitnext.github.io/blob/main/socket/socket%E7%BC%96%E7%A8%8B%E8%BF%9B%E9%98%B6.md)
+* [xnet](https://github.com/starlitnext/starlitnext.github.io/blob/main/socket/xnet.md)
 
 ---
 
