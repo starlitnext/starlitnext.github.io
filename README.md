@@ -3,11 +3,11 @@
 
 ## 学习笔记
 ### python
-[Python C API](https://github.com/starlitnext/starlitnext.github.io/blob/main/python/python%20C%20API.md)
+* [Python C API](https://github.com/starlitnext/starlitnext.github.io/blob/main/python/python%20C%20API.md)
 
 ### lua
-[Lua C API](https://github.com/starlitnext/starlitnext.github.io/blob/main/lua/Lua%20C%20API.md)
-[Lua reload](https://github.com/starlitnext/starlitnext.github.io/blob/main/lua/Lua%20reload.md)
+* [Lua C API](https://github.com/starlitnext/starlitnext.github.io/blob/main/lua/Lua%20C%20API.md)
+* [Lua reload](https://github.com/starlitnext/starlitnext.github.io/blob/main/lua/Lua%20reload.md)
 
 ### C&C++
 * [C++基础总结](https://github.com/starlitnext/starlitnext.github.io/blob/main/C%26C%2B%2B/C%2B%2B%E5%9F%BA%E7%A1%80%E6%80%BB%E7%BB%93.md)
