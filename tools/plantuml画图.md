@@ -5,6 +5,7 @@
 * [官网教程](https://plantuml.com/zh/)
 * 像代码一样嵌入`markdown`中
 * 安装插件：`Markdown Preview Enhanced`，并使用MPE预览
+* 安装java sdk
 
 * 类图 [教程链接](https://plantuml.com/zh/class-diagram)
 ``` plantuml
